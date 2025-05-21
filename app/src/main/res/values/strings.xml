@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">QuizUnam</string>
+    <!-- Screens titles -->
+    <string name="ui_subjects">Subjects</string>
+    <string name="ui_subject_topics">Topics</string>
+    <string name="ui_syllabus">Syllabus</string>
+    <string name="ui_questions">Questions</string>
+    <string name="ui_summary">Summary</string>
+</resources>
