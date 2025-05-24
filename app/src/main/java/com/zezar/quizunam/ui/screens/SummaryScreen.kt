@@ -173,7 +173,7 @@ fun SummaryScreen(
 @Composable
 fun SummaryMathQuestionCard(question: UserQuestion) {
 
-    Card {
+    Card(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
         Column {
             Text(text = "Math card")
             Text(text = question.question.description)

@@ -16,11 +16,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -31,6 +37,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -63,10 +70,15 @@ fun SubjectScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
 
+            item {
+                GeneralExamAccessSection(
+                    onQuickQuizClick = { /* Navegar a quiz rápido */ },
+                    onMockExamClick = { /* Navegar a simulacro */ },
+                    onHistoryClick = { /* Navegar a historial */ }
+                )
+            }
+
             items(subjects) { subject ->
-
-
-
                 SubjectCard(subject = subject, onClick = { onSubjectClick(subject) })
             }
         }
@@ -180,3 +192,114 @@ fun SubjectCard(subject: Subject, onClick: () -> Unit) {
         }
     }
 }
+
+@Composable
+fun GeneralExamAccessSection(
+    onQuickQuizClick: () -> Unit,
+    onMockExamClick: () -> Unit,
+    onHistoryClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp)
+    ) {
+        Text(
+            text = "Exámenes Generales",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
+            QuizAccessCard(
+                title = "Quiz Rápido",
+                description = "2 preguntas por materia",
+                icon = Icons.Default.Warning,
+                onClick = onQuickQuizClick
+            )
+
+            QuizAccessCard(
+                title = "Simulacro",
+                description = "Examen completo",
+                icon = Icons.Default.Warning,
+                onClick = onMockExamClick
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextButton(
+                onClick = onHistoryClick,
+                shape = RoundedCornerShape(50),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Historial",
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Ver historial")
+            }
+        }
+    }
+}
+
+@Composable
+fun QuizAccessCard(
+    title: String,
+    description: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+        modifier = modifier
+            .height(100.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(12.dp),
+            verticalArrangement = Arrangement.SpaceBetween
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+        }
+    }
+}
+
+
+

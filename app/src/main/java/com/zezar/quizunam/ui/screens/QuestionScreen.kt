@@ -1,10 +1,13 @@
 package com.zezar.quizunam.ui.screens
 
 import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -22,15 +25,21 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -178,11 +187,8 @@ fun QuestionScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             if (question.codeSubject == "MAT") {
-                MathQuestionCard(
-                    question = question,
-                    selected = selected,
-                    onAnswerSelected = onAnswerSelected
-                )
+                MathQuestionCardV2(question = question, selected = selected, onAnswerSelected = onAnswerSelected )
+                //MathQuestionCard( question = question, selected = selected, onAnswerSelected = onAnswerSelected)
             } else {
                 QuestionCard(
                     question = question,
@@ -271,65 +277,6 @@ fun QuestionCard(
     }
 }
 
-@Composable
-fun MathQuestionCard(
-    question: Question,
-    selected: String?,
-    onAnswerSelected: (String) -> Unit
-) {
-    val latexHtml = remember(question.description) {
-        getLatexHtml(question.description)
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        AndroidView(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(150.dp),
-            factory = { context ->
-                WebView(context).apply {
-                    settings.javaScriptEnabled = true
-                    loadDataWithBaseURL(null, latexHtml, "text/html", "utf-8", null)
-                }
-            },
-            update = {
-                it.loadDataWithBaseURL(null, latexHtml, "text/html", "utf-8", null)
-            }
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Opciones con selección
-        val options = listOf(
-            "A" to question.optionA,
-            "B" to question.optionB,
-            "C" to question.optionC,
-            "D" to question.optionD
-        )
-
-        options.forEach { (letter, text) ->
-            val isSelected = selected == letter
-            Button(
-                onClick = { onAnswerSelected(letter) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isSelected) Color(0xFF9DE0AD) else MaterialTheme.colorScheme.primary
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text("$letter. $text")
-            }
-        }
-    }
-}
-
-
 fun getLatexHtml(description: String): String {
     return """
         <html>
@@ -352,6 +299,157 @@ fun getLatexHtml(description: String): String {
         </html>
     """.trimIndent()
 }
+
+@Composable
+fun LatexView(
+    latex: String,
+    modifier: Modifier = Modifier,
+    fontSizeSp: Int = 18,
+    isDarkTheme: Boolean = isSystemInDarkTheme()
+) {
+    val context = LocalContext.current
+    var isLoaded by remember { mutableStateOf(false) }
+
+    val html = remember(latex, fontSizeSp, isDarkTheme) {
+        """
+        <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+            <script type="text/javascript" id="MathJax-script" async
+                src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+            </script>
+            <script type="text/javascript">
+                window.addEventListener("load", function() {
+                    MathJax.typesetPromise().then(() => {
+                        if (window.Android && Android.onMathJaxReady) {
+                            Android.onMathJaxReady();
+                        }
+                    });
+                });
+            </script>
+            <style>
+                body {
+                    font-size: ${fontSizeSp}px;
+                    padding: 8px;
+                    margin: 0;
+                    color: ${if (isDarkTheme) "white" else "black"};
+                    background-color: transparent;
+                }
+            </style>
+        </head>
+        <body>
+            <p>\($latex\)</p>
+        </body>
+        </html>
+        """.trimIndent()
+    }
+
+    Box(modifier = modifier) {
+        if (!isLoaded) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp), // Altura temporal para spinner
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(if (isLoaded) Modifier else Modifier
+                    .height(0.dp)
+                    .alpha(0f)
+                ),
+            factory = {
+                WebView(context).apply {
+                    settings.javaScriptEnabled = true
+                    setBackgroundColor(android.graphics.Color.TRANSPARENT)
+
+                    // Comunicación JS -> Kotlin
+                    addJavascriptInterface(object {
+                        @android.webkit.JavascriptInterface
+                        fun onMathJaxReady() {
+                            (context as? android.app.Activity)?.runOnUiThread {
+                                isLoaded = true
+                            }
+                        }
+                    }, "Android")
+
+                    webViewClient = object : WebViewClient() {
+                        override fun onPageFinished(view: WebView?, url: String?) {
+                            // JS se encarga de notificar cuando está listo
+                        }
+                    }
+
+                    loadDataWithBaseURL(null, html, "text/html", "utf-8", null)
+                }
+            },
+            update = {
+                isLoaded = false // Reiniciar estado si latex cambia
+                it.loadDataWithBaseURL(null, html, "text/html", "utf-8", null)
+            }
+        )
+    }
+}
+
+
+@Composable
+fun MathQuestionCardV2(
+    question: Question,
+    selected: String?,
+    onAnswerSelected: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        // Pregunta
+        LatexView(
+            latex = question.description,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Opciones
+        val options = listOf(
+            "A" to question.optionA,
+            "B" to question.optionB,
+            "C" to question.optionC,
+            "D" to question.optionD
+        )
+
+        options.forEach { (letter, text) ->
+            val isSelected = selected == letter
+            Button(
+                onClick = { onAnswerSelected(letter) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isSelected) Color(0xFF9DE0AD) else MaterialTheme.colorScheme.primary
+                ),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Column {
+                    Text("$letter.")
+                    LatexView(
+                        latex = text,
+                        fontSizeSp = 16,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                }
+            }
+        }
+    }
+}
+
+
 
 
 
