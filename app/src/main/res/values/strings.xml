@@ -6,4 +6,5 @@
     <string name="ui_syllabus">Syllabus</string>
     <string name="ui_questions">Questions</string>
     <string name="ui_summary">Summary</string>
+    <string name="ui_history">Puntaje</string>
 </resources>

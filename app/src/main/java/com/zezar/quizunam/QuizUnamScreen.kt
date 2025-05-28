@@ -29,7 +29,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.zezar.quizunam.model.QuizType
 import com.zezar.quizunam.ui.screens.FieldScreen
+import com.zezar.quizunam.ui.screens.HistoryScreen
 import com.zezar.quizunam.ui.screens.QuestionScreen
 import com.zezar.quizunam.ui.screens.SubjectScreen
 import com.zezar.quizunam.ui.screens.SummaryScreen
@@ -43,7 +45,8 @@ enum class QuizUnamScreen(@StringRes val title: Int) {
     Subjects(title = R.string.ui_subjects),
     Syllabus(title = R.string.ui_syllabus),
     Question(title = R.string.ui_questions),
-    Summary(title = R.string.ui_summary)
+    Summary(title = R.string.ui_summary),
+    History(title = R.string.ui_history)
 }
 
 
@@ -125,23 +128,34 @@ fun QuizUnamApp (
                 SubjectScreen(
                     uiState = uiState,
                     onSubjectClick = { subject ->
-                        Toast.makeText(context, "Seleccionaste: ${subject.name}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Seleccionaste: ${subject.name}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         viewModel.loadTopicsByFieldAndSubject(subject.code)
                         navController.navigate(QuizUnamScreen.Syllabus.name)
                     },
                     onQuickQuizClick = {
-                        viewModel.loadQuestionsForQuickExam()
+                        //viewModel.loadQuestionsForQuickExam()
+                        viewModel.loadQuestions(QuizType.QUICK_QUIZ)
                         navController.navigate(QuizUnamScreen.Question.name)
                     },
-                    onMockExamClick = { /*TODO*/ }) {
-
-                }
+                    onMockExamClick = {
+                        viewModel.loadQuestions(QuizType.MOCK_EXAM)
+                        navController.navigate(QuizUnamScreen.Question.name)
+                    },
+                    onHistoryClick = {
+                        navController.navigate(QuizUnamScreen.History.name)
+                    }
+                )
             }
 
             composable(route = QuizUnamScreen.Syllabus.name) {
                 SyllabusScreen(uiState) { topic ->
                     Toast.makeText(context, "Seleccionaste tema: ${topic.title}", Toast.LENGTH_SHORT).show()
-                    viewModel.loadQuestionsByTopic(topic)
+                    viewModel.setTopic(topic)
+                    viewModel.loadQuestions(QuizType.TOPIC_QUIZ)
                     navController.navigate(QuizUnamScreen.Question.name)
                 }
             }
@@ -175,6 +189,11 @@ fun QuizUnamApp (
                         }
                     }
                 )
+            }
+
+            composable(route = QuizUnamScreen.History.name) {
+                viewModel.loadQuizHistory(context)
+                HistoryScreen(uiState)
             }
         }
     }

@@ -77,8 +77,8 @@ fun SubjectScreen(
             item {
                 GeneralExamAccessSection(
                     onQuickQuizClick = onQuickQuizClick,
-                    onMockExamClick = {  },
-                    onHistoryClick = { }
+                    onMockExamClick = onMockExamClick,
+                    onHistoryClick = onHistoryClick
                 )
             }
 

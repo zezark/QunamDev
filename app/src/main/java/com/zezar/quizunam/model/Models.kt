@@ -48,3 +48,10 @@ data class UserQuestion(
     var selectedAnswer: String? = null,
     val isCorrect: Boolean = false
 )
+
+enum class QuizType {
+    TOPIC_QUIZ,
+    SUBJECT_QUIZ,
+    QUICK_QUIZ,
+    MOCK_EXAM
+}

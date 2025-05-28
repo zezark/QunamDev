@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.zezar.quizunam.data.PreferencesManager
 import com.zezar.quizunam.model.Field
 import com.zezar.quizunam.model.Question
+import com.zezar.quizunam.model.QuizType
 import com.zezar.quizunam.model.QuizUnamUiState
 import com.zezar.quizunam.model.Subject
 import com.zezar.quizunam.model.Topic
@@ -17,6 +18,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class QuizUnamViewModel: ViewModel() {
 
@@ -146,6 +150,7 @@ class QuizUnamViewModel: ViewModel() {
     fun saveProgress(context: Context) {
 
         val userQuestions = _uiState.value.userQuestions
+        val correctCount = userQuestions.count { it.isCorrect }
 
         viewModelScope.launch {
             userQuestions.forEach { userQuestion ->
@@ -162,9 +167,22 @@ class QuizUnamViewModel: ViewModel() {
                 }
             }
         }
+
+        // Revisar si el tipo de quiz, si fue mock o quick, guardar puntaje
+        // usando el uistate.
+
+        val quizType = _uiState.value.quizTypeSelected
+
+        viewModelScope.launch {
+            if (quizType == QuizType.QUICK_QUIZ) {
+                val key = generateQuizKey("QQ")
+                PreferencesManager.saveQuizScore(context, key, correctCount )
+            }
+        }
+
     }
 
-    fun loadQuestionsForQuickExam() {
+    private fun loadQuestionsForQuickExam() {
 
         val field = _uiState.value.fieldSelected ?: return
         val allQuestions = repository.getQuestions().shuffled()
@@ -187,4 +205,93 @@ class QuizUnamViewModel: ViewModel() {
             )
         }
     }
+
+    fun setTopic(topic: Topic) {
+        _uiState.update { it.copy(topicSelected = topic) }
+    }
+
+    fun loadQuestions(quizType: QuizType) {
+
+        _uiState.update { it.copy(quizTypeSelected = quizType ) }
+
+        when(quizType) {
+            QuizType.TOPIC_QUIZ -> { loadQuestionsByTopicV2() }
+            QuizType.QUICK_QUIZ -> { loadQuestionsForQuickExam() }
+            QuizType.SUBJECT_QUIZ -> { loadQuestionsBySubject() }
+            QuizType.MOCK_EXAM -> { loadQuestionsForMockExam() }
+        }
+    }
+
+    private fun loadQuestionsForMockExam() {
+        val questions = repository.getQuestions().shuffled().take(5)
+
+        val userQuestions = questions.map { question ->
+            UserQuestion(question = question)
+        }
+
+        _uiState.update {
+            it.copy(
+                userQuestions = userQuestions,
+                currentQuestionIndex = 0
+            )
+        }
+    }
+
+    private fun loadQuestionsBySubject() {
+
+        val subject = _uiState.value.subjetcSelected ?: return
+        val questions = repository.getQuestions().shuffled().filter { it.codeSubject == subject.code }.take(10)
+
+        val userQuestions = questions.map { question ->
+            UserQuestion(question = question)
+        }
+
+        _uiState.update {
+            it.copy(
+                userQuestions = userQuestions,
+                currentQuestionIndex = 0
+            )
+        }
+
+    }
+
+    private fun loadQuestionsByTopicV2() {
+
+        val topic = _uiState.value.topicSelected ?: return
+
+        val all = repository.getQuestions().filter { it.codeTopic == topic.code }
+
+        val selected = all.shuffled().take(3).map { shuffleQuestionOptions(it) }
+
+        val userQuestions = selected.map { question ->
+            UserQuestion(question = question)
+        }
+
+        _uiState.update {
+            it.copy(
+                userQuestions = userQuestions,
+                currentQuestionIndex = 0
+            )
+        }
+    }
+
+    fun generateQuizKey(prefix: String): String {
+        val formatter = DateTimeFormatter.ofPattern("ddMMMyy-HHmmss", Locale.ENGLISH)
+        val timestamp = LocalDateTime.now().format(formatter).uppercase()
+        return "$prefix-$timestamp" // Ej: "QQ-28MAY25-142532"
+    }
+
+
+    fun loadQuizHistory(context: Context) {
+
+        viewModelScope.launch {
+
+            _uiState.update {
+                it.copy(quizHistoryMap = PreferencesManager.getAllQuizScores(context = context))
+            }
+
+        }
+    }
+
+
 }
