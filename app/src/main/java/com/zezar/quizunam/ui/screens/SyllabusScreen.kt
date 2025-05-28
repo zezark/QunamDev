@@ -64,7 +64,12 @@ fun SyllabusScreen(
         }
         
         items(topics) { topic ->
-            TopicCard(topic = topic, onClick = { onClickTopic(topic) })
+            TopicCard(
+                topic = topic,
+                onClick = {
+                    onClickTopic(topic)
+                }
+            )
         }
     }
 }

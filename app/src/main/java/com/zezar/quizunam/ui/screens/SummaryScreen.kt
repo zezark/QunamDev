@@ -2,6 +2,7 @@ package com.zezar.quizunam.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -173,35 +174,145 @@ fun SummaryScreen(
 @Composable
 fun SummaryMathQuestionCard(question: UserQuestion) {
 
-    Card(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
-        Column {
-            Text(text = "Math card")
-            Text(text = question.question.description)
-            Text(text = "A) ${question.question.optionA}")
-            Text(text = "B) ${question.question.optionB}")
-            Text(text = "C) ${question.question.optionC}")
-            Text(text = "D) ${question.question.optionD}")
-            Text(text = "Correct -> ${question.selectedAnswer}")
-            Text(text = "Mi respuesta -> ${question.question.answer}")
+    val isCorrect = question.selectedAnswer == question.question.answer
+    val backgroundColor = if (isCorrect) {
+        Color(0xFFDFF5DD) // Verde tenue
+    } else {
+        Color(0xFFFFE5E5) // Rojo tenue
+    }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp)
+        ) {
+            Text(text = question.question.codeSubject)
+            LatexView(
+                latex = question.question.description,
+                modifier = Modifier.fillMaxWidth(),
+                fontSizeSp = 16
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row {
+                Text(
+                    text = "A) ",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.DarkGray
+                )
+                LatexView(
+                    latex = question.question.optionA,
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSizeSp = 12
+                )
+            }
+            Row {
+                Text(
+                    text = "B) ",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.DarkGray
+                )
+                LatexView(
+                    latex = question.question.optionB,
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSizeSp = 12
+                )
+            }
+            Row {
+                Text(
+                    text = "C) ",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.DarkGray
+                )
+                LatexView(
+                    latex = question.question.optionC,
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSizeSp = 12
+                )
+            }
+            Row {
+                Text(
+                    text = "D) ",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.DarkGray
+                )
+                LatexView(
+                    latex = question.question.optionD,
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSizeSp = 12
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = "Tu respuesta: ${question.selectedAnswer}",
+                color = if (isCorrect) Color(0xFF2E7D32) else Color(0xFFC62828),
+                style = MaterialTheme.typography.bodyLarge
+            )
+            Text(
+                text = "Respuesta correcta: ${question.question.answer}",
+                color = Color.DarkGray,
+                style = MaterialTheme.typography.bodySmall
+            )
         }
     }
 }
 
 @Composable
 fun SummaryQuestionCard(question: UserQuestion) {
-
-    Card {
-        Column {
-            Text(text = "Normal card")
-            Text(text = question.question.description)
-            Text(text = "A) ${question.question.optionA}")
-            Text(text = "B) ${question.question.optionB}")
-            Text(text = "C) ${question.question.optionC}")
-            Text(text = "D) ${question.question.optionD}")
-            Text(text = "Correct -> ${question.selectedAnswer}")
-            Text(text = "Mi respuesta -> ${question.question.answer}")
-        }
+    val isCorrect = question.selectedAnswer == question.question.answer
+    val backgroundColor = if (isCorrect) {
+        Color(0xFFDFF5DD) // Verde tenue
+    } else {
+        Color(0xFFFFE5E5) // Rojo tenue
     }
 
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = backgroundColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = question.question.description,
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            listOf(
+                "A" to question.question.optionA,
+                "B" to question.question.optionB,
+                "C" to question.question.optionC,
+                "D" to question.question.optionD
+            ).forEach { (label, text) ->
+                Text(
+                    text = "$label) $text",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.DarkGray
+                )
+            }
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "Tu respuesta: ${question.selectedAnswer}",
+                color = if (isCorrect) Color(0xFF2E7D32) else Color(0xFFC62828),
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Text(
+                text = "Respuesta correcta: ${question.question.answer}",
+                color = Color.DarkGray,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
 }
+

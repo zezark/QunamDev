@@ -1,6 +1,7 @@
 package com.zezar.quizunam.ui.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.zezar.quizunam.data.PreferencesManager
@@ -78,7 +79,7 @@ class QuizUnamViewModel: ViewModel() {
 
         _uiState.update {
             it.copy(
-                currentTopic = topic,
+                //currentTopic = topic,
                 userQuestions = userQuestions,
                 currentQuestionIndex = 0
             )
@@ -163,5 +164,27 @@ class QuizUnamViewModel: ViewModel() {
         }
     }
 
+    fun loadQuestionsForQuickExam() {
 
+        val field = _uiState.value.fieldSelected ?: return
+        val allQuestions = repository.getQuestions().shuffled()
+
+        val subjectCodes = repository.getSubjects()
+            .filter { it.fieldCodes.contains(field.code) }
+            .map { it.code }
+            .shuffled()
+
+        val selectedQuestions = subjectCodes.flatMap { subjectCode ->
+            allQuestions.filter { it.codeSubject == subjectCode }.take(2)
+        }
+
+        val userQuestions = selectedQuestions.map { UserQuestion(it) }
+
+        _uiState.update {
+            it.copy(
+                userQuestions = userQuestions,
+                currentQuestionIndex = 0
+            )
+        }
+    }
 }

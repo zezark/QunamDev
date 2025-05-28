@@ -52,7 +52,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun SubjectScreen(
     uiState: QuizUnamUiState,
-    onSubjectClick: (Subject) -> Unit
+    onSubjectClick: (Subject) -> Unit,
+    onQuickQuizClick: () -> Unit,
+    onMockExamClick: () -> Unit,
+    onHistoryClick: () -> Unit
+
 ) {
 
     val subjects = uiState.subjects
@@ -72,9 +76,9 @@ fun SubjectScreen(
 
             item {
                 GeneralExamAccessSection(
-                    onQuickQuizClick = { /* Navegar a quiz rápido */ },
-                    onMockExamClick = { /* Navegar a simulacro */ },
-                    onHistoryClick = { /* Navegar a historial */ }
+                    onQuickQuizClick = onQuickQuizClick,
+                    onMockExamClick = {  },
+                    onHistoryClick = { }
                 )
             }
 

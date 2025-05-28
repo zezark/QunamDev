@@ -122,10 +122,19 @@ fun QuizUnamApp (
             }
 
             composable(route = QuizUnamScreen.Subjects.name) {
-                SubjectScreen(uiState) { subject ->
-                    Toast.makeText(context, "Seleccionaste: ${subject.name}", Toast.LENGTH_SHORT).show()
-                    viewModel.loadTopicsByFieldAndSubject(subject.code)
-                    navController.navigate(QuizUnamScreen.Syllabus.name)
+                SubjectScreen(
+                    uiState = uiState,
+                    onSubjectClick = { subject ->
+                        Toast.makeText(context, "Seleccionaste: ${subject.name}", Toast.LENGTH_SHORT).show()
+                        viewModel.loadTopicsByFieldAndSubject(subject.code)
+                        navController.navigate(QuizUnamScreen.Syllabus.name)
+                    },
+                    onQuickQuizClick = {
+                        viewModel.loadQuestionsForQuickExam()
+                        navController.navigate(QuizUnamScreen.Question.name)
+                    },
+                    onMockExamClick = { /*TODO*/ }) {
+
                 }
             }
 

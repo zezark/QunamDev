@@ -223,7 +223,9 @@ fun QuestionCard(
     selected: String?,
     onAnswerSelected: (String) -> Unit
 ) {
+
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = question.codeSubject)
         // Descripción
         Text(
             text = question.description,
@@ -305,12 +307,15 @@ fun LatexView(
     latex: String,
     modifier: Modifier = Modifier,
     fontSizeSp: Int = 18,
-    isDarkTheme: Boolean = isSystemInDarkTheme()
+    isDarkTheme: Boolean = isSystemInDarkTheme(),
+    color: String = "black"
 ) {
     val context = LocalContext.current
     var isLoaded by remember { mutableStateOf(false) }
 
-    val html = remember(latex, fontSizeSp, isDarkTheme) {
+    // color: ${if (isDarkTheme) "white" else "black"};
+
+    val html = remember(latex, fontSizeSp, isDarkTheme, color) {
         """
         <html>
         <head>
@@ -330,9 +335,9 @@ fun LatexView(
             <style>
                 body {
                     font-size: ${fontSizeSp}px;
-                    padding: 8px;
+                    padding: 4px;
                     margin: 0;
-                    color: ${if (isDarkTheme) "white" else "black"};
+                    color: $color;
                     background-color: transparent;
                 }
             </style>
@@ -349,7 +354,7 @@ fun LatexView(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(40.dp), // Altura temporal para spinner
+                    .height(20.dp), // Altura temporal para spinner
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
@@ -359,9 +364,10 @@ fun LatexView(
         AndroidView(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(if (isLoaded) Modifier else Modifier
-                    .height(0.dp)
-                    .alpha(0f)
+                .then(
+                    if (isLoaded) Modifier else Modifier
+                        .height(0.dp)
+                        .alpha(0f)
                 ),
             factory = {
                 WebView(context).apply {
@@ -410,7 +416,8 @@ fun MathQuestionCardV2(
         // Pregunta
         LatexView(
             latex = question.description,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            color = "white"
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -442,7 +449,6 @@ fun MathQuestionCardV2(
                         fontSizeSp = 16,
                         modifier = Modifier.fillMaxWidth()
                     )
-
                 }
             }
         }
