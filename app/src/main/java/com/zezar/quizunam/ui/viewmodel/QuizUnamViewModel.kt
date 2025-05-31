@@ -176,27 +176,36 @@ class QuizUnamViewModel: ViewModel() {
         viewModelScope.launch {
             if (quizType == QuizType.QUICK_QUIZ) {
                 val key = generateQuizKey("QQ")
-                PreferencesManager.saveQuizScore(context, key, correctCount )
+                PreferencesManager.saveQuizScore(context, key, correctCount)
+            }
+
+            if (quizType == QuizType.MOCK_EXAM) {
+                val key = generateQuizKey("ME")
+                PreferencesManager.saveQuizScore(context, key, correctCount)
             }
         }
-
     }
 
     private fun loadQuestionsForQuickExam() {
 
         val field = _uiState.value.fieldSelected ?: return
-        val allQuestions = repository.getQuestions().shuffled()
+        val questionList = emptyList<Question>().toMutableList()
 
-        val subjectCodes = repository.getSubjects()
-            .filter { it.fieldCodes.contains(field.code) }
-            .map { it.code }
-            .shuffled()
+        questionList += repository.getMathQuestions().shuffled().take(1)
+        questionList += repository.getBiologyQuestions().shuffled().take(1)
+        questionList += repository.getMexicanHistoryQuestions().shuffled().take(1)
+        questionList += repository.getWorldHistoryQuestions().shuffled().take(1)
+        questionList += repository.getChemistryQuestions().shuffled().take(1)
+        questionList += repository.getPhysicsQuestions().shuffled().take(1)
+        questionList += repository.getSpanishQuestions().shuffled().take(1)
+        questionList += repository.getGeographyQuestions().shuffled().take(1)
+        questionList += repository.getLiteratureQuestions().shuffled().take(1)
 
-        val selectedQuestions = subjectCodes.flatMap { subjectCode ->
-            allQuestions.filter { it.codeSubject == subjectCode }.take(2)
+        if(field.code == "A4") {
+            questionList += repository.getPhilosophyQuestions().shuffled().take(1)
         }
 
-        val userQuestions = selectedQuestions.map { UserQuestion(it) }
+        val userQuestions = questionList.map { UserQuestion(it) }
 
         _uiState.update {
             it.copy(
@@ -223,9 +232,66 @@ class QuizUnamViewModel: ViewModel() {
     }
 
     private fun loadQuestionsForMockExam() {
-        val questions = repository.getQuestions().shuffled().take(5)
 
-        val userQuestions = questions.map { question ->
+        val field = _uiState.value.fieldSelected ?: return
+
+        val questionList = emptyList<Question>().toMutableList()
+
+        when(field.code) {
+            "A1" -> {
+                questionList += repository.getMathQuestions().shuffled().take(1)
+                questionList += repository.getBiologyQuestions().shuffled().take(1)
+                questionList += repository.getMexicanHistoryQuestions().shuffled().take(1)
+                questionList += repository.getWorldHistoryQuestions().shuffled().take(1)
+                questionList += repository.getChemistryQuestions().shuffled().take(1)
+                questionList += repository.getPhysicsQuestions().shuffled().take(1)
+                questionList += repository.getSpanishQuestions().shuffled().take(1)
+                questionList += repository.getGeographyQuestions().shuffled().take(1)
+                questionList += repository.getLiteratureQuestions().shuffled().take(1)
+            }
+            "A2" -> {
+                questionList += repository.getMathQuestions().shuffled().take(1)
+                questionList += repository.getBiologyQuestions().shuffled().take(1)
+                questionList += repository.getMexicanHistoryQuestions().shuffled().take(1)
+                questionList += repository.getWorldHistoryQuestions().shuffled().take(1)
+                questionList += repository.getChemistryQuestions().shuffled().take(1)
+                questionList += repository.getPhysicsQuestions().shuffled().take(1)
+                questionList += repository.getSpanishQuestions().shuffled().take(1)
+                questionList += repository.getGeographyQuestions().shuffled().take(1)
+                questionList += repository.getLiteratureQuestions().shuffled().take(1)
+            }
+            "A3" -> {
+                questionList += repository.getMathQuestions().shuffled().take(1)
+                questionList += repository.getBiologyQuestions().shuffled().take(1)
+                questionList += repository.getMexicanHistoryQuestions().shuffled().take(1)
+                questionList += repository.getWorldHistoryQuestions().shuffled().take(1)
+                questionList += repository.getChemistryQuestions().shuffled().take(1)
+                questionList += repository.getPhysicsQuestions().shuffled().take(1)
+                questionList += repository.getSpanishQuestions().shuffled().take(1)
+                questionList += repository.getGeographyQuestions().shuffled().take(1)
+                questionList += repository.getLiteratureQuestions().shuffled().take(1)
+            }
+            "A4" -> {
+                questionList += repository.getMathQuestions().shuffled().take(1)
+                questionList += repository.getBiologyQuestions().shuffled().take(1)
+                questionList += repository.getMexicanHistoryQuestions().shuffled().take(1)
+                questionList += repository.getWorldHistoryQuestions().shuffled().take(1)
+                questionList += repository.getChemistryQuestions().shuffled().take(1)
+                questionList += repository.getPhysicsQuestions().shuffled().take(1)
+                questionList += repository.getSpanishQuestions().shuffled().take(1)
+                questionList += repository.getGeographyQuestions().shuffled().take(1)
+                questionList += repository.getLiteratureQuestions().shuffled().take(1)
+                questionList += repository.getPhilosophyQuestions().shuffled().take(1)
+            }
+        }
+
+        val codeSubjects = questionList.map { it.codeSubject }.distinct().shuffled()
+
+        val orderedQuestions = codeSubjects.flatMap { subjectCode ->
+            questionList.filter { it.codeSubject == subjectCode }
+        }
+
+        val userQuestions = orderedQuestions.map { question ->
             UserQuestion(question = question)
         }
 
@@ -275,7 +341,7 @@ class QuizUnamViewModel: ViewModel() {
         }
     }
 
-    fun generateQuizKey(prefix: String): String {
+    private fun generateQuizKey(prefix: String): String {
         val formatter = DateTimeFormatter.ofPattern("ddMMMyy-HHmmss", Locale.ENGLISH)
         val timestamp = LocalDateTime.now().format(formatter).uppercase()
         return "$prefix-$timestamp" // Ej: "QQ-28MAY25-142532"
@@ -283,15 +349,10 @@ class QuizUnamViewModel: ViewModel() {
 
 
     fun loadQuizHistory(context: Context) {
-
         viewModelScope.launch {
-
             _uiState.update {
                 it.copy(quizHistoryMap = PreferencesManager.getAllQuizScores(context = context))
             }
-
         }
     }
-
-
 }

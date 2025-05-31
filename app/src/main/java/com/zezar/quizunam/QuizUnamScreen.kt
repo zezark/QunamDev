@@ -47,6 +47,7 @@ enum class QuizUnamScreen(@StringRes val title: Int) {
     Question(title = R.string.ui_questions),
     Summary(title = R.string.ui_summary),
     History(title = R.string.ui_history)
+    // AboutScreen
 }
 
 

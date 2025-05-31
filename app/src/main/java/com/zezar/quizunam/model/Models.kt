@@ -40,8 +40,35 @@ data class Question(
     val optionD: String,
     val answer: String, // puede ser "A", "B", "C" o "D"
     val image: String? = null, // opcional
-    val level: String // "A" = fácil, "B" = intermedio, "C" = difícil
+    val level: String, // "A" = fácil, "B" = intermedio, "C" = difícil
+    val originKey: String = "GPT"
 )
+
+/**
+ * // Fuentes originales
+ * UNAM-GUIDE      // Guía oficial de la UNAM
+ * CONAMAT         // Guía de estudio CONAMAT
+ * YOUTUBE         // Video educativo de YouTube
+ * WEB             // Página de internet (blog, artículo, etc.)
+ * BOOK            // Libro físico o digital
+ * MANUAL          // Pregunta redactada manualmente
+ *
+ * // Generadas por IA
+ * GPT-GEN         // Pregunta generada completamente por GPT u otra IA
+ *
+ * // Combinaciones de fuente + IA
+ * Y-GPT           // Pregunta de YouTube usada como prompt en GPT
+ * C-GPT           // Pregunta de CONAMAT transformada por GPT
+ * U-GPT           // Pregunta de guía oficial UNAM transformada por GPT
+ * W-GPT           // Página web convertida a pregunta por GPT
+ * B-GPT           // Pregunta de libro generada por GPT
+ * GPT-MOD         // Pregunta generada por GPT a partir de múltiples fuentes
+ * GPT-AUG         // Pregunta original aumentada o corregida con GPT
+ *
+ * // Otras posibles combinaciones si usas otros modelos de IA
+ * Y-DS            // Pregunta de YouTube generada con DeepSeek
+ * W-DS            // Página web convertida a pregunta por DeepSeek
+ */
 
 data class UserQuestion(
     val question: Question,
