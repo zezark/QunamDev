@@ -163,6 +163,22 @@ fun QuestionScreen(
     val currentIndex = uiState.currentQuestionIndex
     val totalQuestions = uiState.userQuestions.size
 
+    if (totalQuestions == 0) {
+        // Muestra un mensaje cuando no hay preguntas
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "No hay preguntas disponibles.",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Gray
+            )
+        }
+        return // <- termina la ejecución de QuestionScreen
+    }
+
+
     if (currentIndex >= totalQuestions) return
 
     val userQuestion = uiState.userQuestions[currentIndex]

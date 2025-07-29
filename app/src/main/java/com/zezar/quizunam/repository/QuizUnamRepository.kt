@@ -1,13 +1,27 @@
 package com.zezar.quizunam.repository
 
+import android.content.Context
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.zezar.quizunam.model.Field
 import com.zezar.quizunam.model.Question
 import com.zezar.quizunam.model.Subject
 import com.zezar.quizunam.model.Topic
+import java.io.InputStreamReader
 
 object QuizUnamRepository {
 
-
+    fun getQuestionsFromJson(context: Context, subjectKey: String): List<Question> {
+        val fileName = "${subjectKey.lowercase()}.json"
+        return try {
+            val inputStream = context.assets.open(fileName)
+            val reader = InputStreamReader(inputStream)
+            val questionListType = object : TypeToken<List<Question>>() {}.type
+            Gson().fromJson(reader, questionListType)
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 
     fun getTopicByCode(code: String): Topic? {
         return getTopics().firstOrNull { it.code == code }
@@ -124,6 +138,7 @@ object QuizUnamRepository {
         )
     }
 
+    /*
 
     fun getQuestions(): List<Question> {
         return listOf(
@@ -1019,6 +1034,8 @@ object QuizUnamRepository {
             Question(id=3025, codeSubject="FIL", codeTopic="FIL-3", description="¿Qué disciplina filosófica estudia el ser y la existencia?", optionA="Ontología", optionB="Lógica", optionC="Epistemología", optionD="Ética", answer="A", image=null, level="B"),
         )
     }
+
+     */
 
 
 }

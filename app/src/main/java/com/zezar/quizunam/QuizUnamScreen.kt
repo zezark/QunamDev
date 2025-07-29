@@ -138,12 +138,11 @@ fun QuizUnamApp (
                         navController.navigate(QuizUnamScreen.Syllabus.name)
                     },
                     onQuickQuizClick = {
-                        //viewModel.loadQuestionsForQuickExam()
-                        viewModel.loadQuestions(QuizType.QUICK_QUIZ)
+                        viewModel.loadQuestions(QuizType.QUICK_QUIZ, context)
                         navController.navigate(QuizUnamScreen.Question.name)
                     },
                     onMockExamClick = {
-                        viewModel.loadQuestions(QuizType.MOCK_EXAM)
+                        viewModel.loadQuestions(QuizType.MOCK_EXAM, context)
                         navController.navigate(QuizUnamScreen.Question.name)
                     },
                     onHistoryClick = {
@@ -156,7 +155,7 @@ fun QuizUnamApp (
                 SyllabusScreen(uiState) { topic ->
                     Toast.makeText(context, "Seleccionaste tema: ${topic.title}", Toast.LENGTH_SHORT).show()
                     viewModel.setTopic(topic)
-                    viewModel.loadQuestions(QuizType.TOPIC_QUIZ)
+                    viewModel.loadQuestions(QuizType.TOPIC_QUIZ, context)
                     navController.navigate(QuizUnamScreen.Question.name)
                 }
             }

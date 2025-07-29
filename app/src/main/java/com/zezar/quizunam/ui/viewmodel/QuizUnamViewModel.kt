@@ -69,6 +69,7 @@ class QuizUnamViewModel: ViewModel() {
         _uiState.update { it.copy(topics = topics) }
     }
 
+    /*
     fun loadQuestionsByTopic(topic: Topic) {
 
         val all = repository.getQuestions().filter { it.codeTopic == topic.code }
@@ -89,6 +90,8 @@ class QuizUnamViewModel: ViewModel() {
             )
         }
     }
+
+     */
 
     fun answerCurrentQuestion(answer: String) {
         val currentIndex = _uiState.value.currentQuestionIndex
@@ -186,23 +189,23 @@ class QuizUnamViewModel: ViewModel() {
         }
     }
 
-    private fun loadQuestionsForQuickExam() {
+    private fun loadQuestionsForQuickExam(context: Context) {
 
         val field = _uiState.value.fieldSelected ?: return
         val questionList = emptyList<Question>().toMutableList()
 
-        questionList += repository.getMathQuestions().shuffled().take(1)
-        questionList += repository.getBiologyQuestions().shuffled().take(1)
-        questionList += repository.getMexicanHistoryQuestions().shuffled().take(1)
-        questionList += repository.getWorldHistoryQuestions().shuffled().take(1)
-        questionList += repository.getChemistryQuestions().shuffled().take(1)
-        questionList += repository.getPhysicsQuestions().shuffled().take(1)
-        questionList += repository.getSpanishQuestions().shuffled().take(1)
-        questionList += repository.getGeographyQuestions().shuffled().take(1)
-        questionList += repository.getLiteratureQuestions().shuffled().take(1)
+        questionList += repository.getQuestionsFromJson(context, "MAT").shuffled().take(1)
+        questionList += repository.getQuestionsFromJson(context, "BIO").shuffled().take(1)
+        questionList += repository.getQuestionsFromJson(context, "HMX").shuffled().take(1)
+        questionList += repository.getQuestionsFromJson(context, "HUN").shuffled().take(1)
+        questionList += repository.getQuestionsFromJson(context, "QUI").shuffled().take(1)
+        questionList += repository.getQuestionsFromJson(context, "FIS").shuffled().take(1)
+        questionList += repository.getQuestionsFromJson(context, "ESP").shuffled().take(1)
+        questionList += repository.getQuestionsFromJson(context, "GEO").shuffled().take(1)
+        questionList += repository.getQuestionsFromJson(context, "LIT").shuffled().take(1)
 
         if(field.code == "A4") {
-            questionList += repository.getPhilosophyQuestions().shuffled().take(1)
+            questionList += repository.getQuestionsFromJson(context, "FIS").shuffled().take(1)
         }
 
         val userQuestions = questionList.map { UserQuestion(it) }
@@ -219,19 +222,19 @@ class QuizUnamViewModel: ViewModel() {
         _uiState.update { it.copy(topicSelected = topic) }
     }
 
-    fun loadQuestions(quizType: QuizType) {
+    fun loadQuestions(quizType: QuizType, context: Context) {
 
         _uiState.update { it.copy(quizTypeSelected = quizType ) }
 
         when(quizType) {
-            QuizType.TOPIC_QUIZ -> { loadQuestionsByTopicV2() }
-            QuizType.QUICK_QUIZ -> { loadQuestionsForQuickExam() }
-            QuizType.SUBJECT_QUIZ -> { loadQuestionsBySubject() }
-            QuizType.MOCK_EXAM -> { loadQuestionsForMockExam() }
+            QuizType.TOPIC_QUIZ -> { loadQuestionsByTopicV2(context) }
+            QuizType.QUICK_QUIZ -> { loadQuestionsForQuickExam(context) }
+            QuizType.SUBJECT_QUIZ -> { loadQuestionsBySubject(context) }
+            QuizType.MOCK_EXAM -> { loadQuestionsForMockExam(context) }
         }
     }
 
-    private fun loadQuestionsForMockExam() {
+    private fun loadQuestionsForMockExam(context: Context) {
 
         val field = _uiState.value.fieldSelected ?: return
 
@@ -239,49 +242,48 @@ class QuizUnamViewModel: ViewModel() {
 
         when(field.code) {
             "A1" -> {
-                questionList += repository.getMathQuestions().shuffled().take(1)
-                questionList += repository.getBiologyQuestions().shuffled().take(1)
-                questionList += repository.getMexicanHistoryQuestions().shuffled().take(1)
-                questionList += repository.getWorldHistoryQuestions().shuffled().take(1)
-                questionList += repository.getChemistryQuestions().shuffled().take(1)
-                questionList += repository.getPhysicsQuestions().shuffled().take(1)
-                questionList += repository.getSpanishQuestions().shuffled().take(1)
-                questionList += repository.getGeographyQuestions().shuffled().take(1)
-                questionList += repository.getLiteratureQuestions().shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "MAT").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "BIO").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "HMX").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "HUN").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "QUI").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "FIS").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "ESP").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "GEO").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "LIT").shuffled().take(1)
             }
             "A2" -> {
-                questionList += repository.getMathQuestions().shuffled().take(1)
-                questionList += repository.getBiologyQuestions().shuffled().take(1)
-                questionList += repository.getMexicanHistoryQuestions().shuffled().take(1)
-                questionList += repository.getWorldHistoryQuestions().shuffled().take(1)
-                questionList += repository.getChemistryQuestions().shuffled().take(1)
-                questionList += repository.getPhysicsQuestions().shuffled().take(1)
-                questionList += repository.getSpanishQuestions().shuffled().take(1)
-                questionList += repository.getGeographyQuestions().shuffled().take(1)
-                questionList += repository.getLiteratureQuestions().shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "MAT").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "BIO").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "HMX").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "HUN").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "QUI").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "FIS").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "ESP").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "GEO").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "LIT").shuffled().take(1)
             }
             "A3" -> {
-                questionList += repository.getMathQuestions().shuffled().take(1)
-                questionList += repository.getBiologyQuestions().shuffled().take(1)
-                questionList += repository.getMexicanHistoryQuestions().shuffled().take(1)
-                questionList += repository.getWorldHistoryQuestions().shuffled().take(1)
-                questionList += repository.getChemistryQuestions().shuffled().take(1)
-                questionList += repository.getPhysicsQuestions().shuffled().take(1)
-                questionList += repository.getSpanishQuestions().shuffled().take(1)
-                questionList += repository.getGeographyQuestions().shuffled().take(1)
-                questionList += repository.getLiteratureQuestions().shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "MAT").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "BIO").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "HMX").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "HUN").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "QUI").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "FIS").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "ESP").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "GEO").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "LIT").shuffled().take(1)
             }
             "A4" -> {
-                questionList += repository.getMathQuestions().shuffled().take(1)
-                questionList += repository.getBiologyQuestions().shuffled().take(1)
-                questionList += repository.getMexicanHistoryQuestions().shuffled().take(1)
-                questionList += repository.getWorldHistoryQuestions().shuffled().take(1)
-                questionList += repository.getChemistryQuestions().shuffled().take(1)
-                questionList += repository.getPhysicsQuestions().shuffled().take(1)
-                questionList += repository.getSpanishQuestions().shuffled().take(1)
-                questionList += repository.getGeographyQuestions().shuffled().take(1)
-                questionList += repository.getLiteratureQuestions().shuffled().take(1)
-                questionList += repository.getPhilosophyQuestions().shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "MAT").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "BIO").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "HMX").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "HUN").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "QUI").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "FIS").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "ESP").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "GEO").shuffled().take(1)
+                questionList += repository.getQuestionsFromJson(context, "LIT").shuffled().take(1)
             }
         }
 
@@ -303,10 +305,11 @@ class QuizUnamViewModel: ViewModel() {
         }
     }
 
-    private fun loadQuestionsBySubject() {
+    private fun loadQuestionsBySubject(context: Context) {
 
         val subject = _uiState.value.subjetcSelected ?: return
-        val questions = repository.getQuestions().shuffled().filter { it.codeSubject == subject.code }.take(10)
+
+        val questions = repository.getQuestionsFromJson(context, subject.code).shuffled().take(5)
 
         val userQuestions = questions.map { question ->
             UserQuestion(question = question)
@@ -321,11 +324,11 @@ class QuizUnamViewModel: ViewModel() {
 
     }
 
-    private fun loadQuestionsByTopicV2() {
+    private fun loadQuestionsByTopicV2(context: Context) {
 
         val topic = _uiState.value.topicSelected ?: return
 
-        val all = repository.getQuestions().filter { it.codeTopic == topic.code }
+        val all = repository.getQuestionsFromJson(context, topic.codeSubject).shuffled().filter { it.codeTopic == topic.code }
 
         val selected = all.shuffled().take(3).map { shuffleQuestionOptions(it) }
 
